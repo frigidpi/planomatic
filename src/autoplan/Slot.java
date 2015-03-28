@@ -6,6 +6,8 @@ public class Slot{
 	private static String startTest = "2012-07-10 14:58";
 	private static String endTest = "2012-07-10 16:58";
 	
+	private static final long minOffset = 60 * 1000;
+	
 	private static DateFormat minuteWise = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	
 	private Date startTime;	// = minuteWise.parse( startTest );
@@ -25,7 +27,7 @@ public class Slot{
 	public Slot( String startTimeString, long duration ) throws ParseException {
 		startTime = minuteWiseParse( startTimeString );
 		durationMin = duration;
-		endTime = new Date(startTime.getTime() + durationMin * 1000 * 60);
+		endTime = new Date(startTime.getTime() + durationMin * minOffset);
 	}
 	
 	//access
@@ -41,6 +43,12 @@ public class Slot{
 	
 	//utility
 	private void updateDuration(){
-		durationMin = (endTime.getTime() - startTime.getTime())/1000/60;		
+		durationMin = (endTime.getTime() - startTime.getTime())/ minOffset;		
+	}
+	private static Date changeDateByMins( Date d, long byMins ){
+		Date out = new Date( d.getTime() + byMins * minOffset );
+	}
+	public void changeStarting( long byMinutes ){
+		this.startTime = changeDateByMins( this.startTime );
 	}
 }
