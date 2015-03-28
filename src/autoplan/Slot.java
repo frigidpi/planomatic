@@ -4,11 +4,22 @@ import java.util.*;
 import java.text.*;
 
 public class Slot{
-	private static String startTest = "2012-07-10 14:58";
-	private static String endTest = "2012-07-10 16:58";
+//	private static String startTest = "2012-07-10 14:58";
+//	private static String endTest = "2012-07-10 16:58";
 	
 	private static final long minOffset = 60 * 1000;
+	public static final int DEFAULT_DIFFICULTY = 5;
 	
+	private int difficulty;
+	
+	public int getDifficulty() {
+		return difficulty;
+	}
+
+	public void setDifficulty(int difficulty) {
+		this.difficulty = difficulty;
+	}
+
 	public static DateFormat minuteWise = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	
 	private Date startTime;	// = minuteWise.parse( startTest );
@@ -30,13 +41,22 @@ public class Slot{
 //		//endTime = new Date(startTime.getTime() + duration * minOffset);
 //	}
 	
-	public Slot( Date startDate, Date endDate ) {
+	public Slot( Date startDate, Date endDate) {
+		this(startDate, endDate, DEFAULT_DIFFICULTY);
+	}
+	public Slot( Date startDate, long duration) {
+		this(startDate, duration, DEFAULT_DIFFICULTY);
+	}
+	
+	public Slot( Date startDate, Date endDate, int difficulty) {
 		this.startTime = startDate;
 		this.duration = (endDate.getTime() - startTime.getTime())/ minOffset;
+		this.difficulty = difficulty;
 	}
-	public Slot( Date startDate, long duration ) {
+	public Slot( Date startDate, long duration, int difficulty) {
 		startTime = startDate;
 		this.duration = duration;// new Date(startTime.getTime() + duration * minOffset);
+		this.difficulty = difficulty;
 	}
 	
 	public Date getEndTime(){
@@ -54,6 +74,10 @@ public class Slot{
 
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
+	}
+	
+	public int timeliness(int stress) {
+		return Math.abs(stress + getDifficulty()*(int)getDuration());
 	}
 
 //	private static Date changeDateByMins( Date d, long byMins ){

@@ -9,10 +9,10 @@ public class Gap extends Slot{
 //	public Gap( String startTimeString, long duration ) throws ParseException {
 //		super( startTimeString, duration );
 //	}
-	public Gap( Date startTimeString, Date endTimeString ) {
-		super( startTimeString, endTimeString );
+	public Gap( Date startTimeString, Date endTimeString) {
+		super( startTimeString, endTimeString, -2*DEFAULT_DIFFICULTY);
 	}
-	public Gap( Date startTimeString, long duration ) {
-		super( startTimeString, duration );
+	public Gap( Date startTimeString, long duration) {
+		super( startTimeString, duration, -2*DEFAULT_DIFFICULTY);
 	}
 }
