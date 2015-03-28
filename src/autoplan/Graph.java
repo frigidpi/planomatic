@@ -3,6 +3,7 @@ package autoplan;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class Graph<T> {
 
@@ -12,8 +13,21 @@ public class Graph<T> {
 		adj = new HashMap<>();
 	}
 	
+	public Set<T> getNodes() {
+		return adj.keySet();
+	}
+	
 	public void addNode(T node) {
 		adj.put(node, new LinkedList<T>());
+	}
+	
+	public void removeNode(T node) {
+		if(!adj.containsKey(node))
+			throw new RuntimeException("Graph does not contain " + node);
+		adj.remove(node);
+		for(List<T> otherList : adj.values()) {
+			otherList.remove(node);
+		}
 	}
 	
 	public void addEdge(T u, T v) {

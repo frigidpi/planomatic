@@ -1,28 +1,27 @@
 package autoplan;
 
-import java.util.*;
-import java.io.*;
 import java.text.*;
 
 public class Task extends Slot{
-	//constructor
-	public Task( String startTimeString, String endTimeString, String name, String text, int importance) throws ParseException {
-		super( startTimeString, endTimeString );
-		this.name = name;
-		this.text = text;
-		this.importance = importance;
-	}
-	public Task( String startTimeString, long duration, String name, String text, int importance ) throws ParseException {
-		super( startTimeString, duration );
-		this.name = name;
-		this.text = text;
-		this.importance = importance;		
-	}	
 	
 	//private fields
 	private String name;
 	private String text;
 	private int importance;
+	
+//	//constructor
+//	public Task( String startTimeString, String endTimeString, String name, String text, int importance) throws ParseException {
+//		super( startTimeString, endTimeString );
+//		this.name = name;
+//		this.text = text;
+//		this.importance = importance;
+//	}
+	public Task(long duration, String name, String text, int importance ) throws ParseException {
+		super( null, duration );
+		this.name = name;
+		this.text = text;
+		this.importance = importance;		
+	}	
 	
 	//access
 	public String getName(){
@@ -44,5 +43,13 @@ public class Task extends Slot{
 	} 	
 	public void setImportance( int newImportance ){
 		importance = newImportance;
-	} 
+	}
+	
+	public String toString() {
+		return String.format("%s (%s for %d)", 
+				name,
+				minuteWise.format(getStartTime()),
+				getDuration());
+	}
+	
 }

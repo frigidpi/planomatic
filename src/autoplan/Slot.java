@@ -9,47 +9,65 @@ public class Slot{
 	
 	private static final long minOffset = 60 * 1000;
 	
-	private static DateFormat minuteWise = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	public static DateFormat minuteWise = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	
 	private Date startTime;	// = minuteWise.parse( startTest );
-	private Date endTime;	// = minuteWise.parse( endTest );
-	private long durationMin;
+	private long duration;
+	//private Date endTime;	// = minuteWise.parse( endTest );
 	
 	public Date minuteWiseParse( String timeString ) throws ParseException{
 		return ( minuteWise.parse( timeString ) );
 	}
 	
 	//constructors
-	public Slot( String startTimeString, String endTimeString ) throws ParseException {
-		startTime = minuteWiseParse( startTimeString );
-		endTime = minuteWiseParse( endTimeString );
-		updateDuration();
+//	public Slot( String startTimeString, String endTimeString ) throws ParseException {
+//		startTime = minuteWiseParse( startTimeString );
+//		endTime = minuteWiseParse( endTimeString );
+//	}
+//	public Slot( String startTimeString, long duration ) throws ParseException {
+//		startTime = minuteWiseParse( startTimeString );
+//		this.duration = duration;
+//		//endTime = new Date(startTime.getTime() + duration * minOffset);
+//	}
+	
+	public Slot( Date startDate, Date endDate ) {
+		this.startTime = startDate;
+		this.duration = (endDate.getTime() - startTime.getTime())/ minOffset;
 	}
-	public Slot( String startTimeString, long duration ) throws ParseException {
-		startTime = minuteWiseParse( startTimeString );
-		durationMin = duration;
-		endTime = new Date(startTime.getTime() + durationMin * minOffset);
+	public Slot( Date startDate, long duration ) {
+		startTime = startDate;
+		this.duration = duration;// new Date(startTime.getTime() + duration * minOffset);
 	}
 	
-	//access
-	public Date getStartDate(){
+	public Date getEndTime(){
+		return new Date(startTime.getTime() + duration * minOffset);
+	}
+	
+	public long getDuration(){
+		//return (endTime.getTime() - startTime.getTime())/ minOffset;
+		return duration;
+	}
+	
+	public Date getStartTime() {
 		return startTime;
 	}
-	public Date getEndDate(){
-		return endTime;
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
 	}
-	public long getDuration(){
-		return durationMin;
+
+//	private static Date changeDateByMins( Date d, long byMins ){
+//		return new Date( d.getTime() + byMins * minOffset );
+//	}
+	public void changeStarting( long byMinutes ){
+		this.startTime = new Date( startTime.getTime() + byMinutes * minOffset );
+		duration -= byMinutes;
 	}
 	
-	//utility
-	private void updateDuration(){
-		durationMin = (endTime.getTime() - startTime.getTime())/ minOffset;		
-	}
-	private static Date changeDateByMins( Date d, long byMins ){
-		return new Date( d.getTime() + byMins * minOffset );
-	}
-	public void changeStarting( long byMinutes ){
-		this.startTime = changeDateByMins( this.startTime , byMinutes);
+	public String toString() {
+		return String.format("%s - %s (%d)", 
+				minuteWise.format(getStartTime()),
+				minuteWise.format(getEndTime()),
+				duration);
 	}
 }
