@@ -1,5 +1,6 @@
+package autoplan;
+
 import java.util.*;
-import java.io.*;
 import java.text.*;
 
 public class Slot{

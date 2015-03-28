@@ -1,5 +1,5 @@
-import java.util.*;
-import java.io.*;
+package autoplan;
+
 import java.text.*;
 
 public class Event extends Slot{

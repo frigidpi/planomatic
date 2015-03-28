@@ -1,3 +1,5 @@
+package autoplan;
+
 public class SlotTest{
 	public static void print( String s ){
 		System.out.println(s);
