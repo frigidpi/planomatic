@@ -22,6 +22,12 @@ public class Graph<T> {
 		adj.get(u).add(v);
 	}
 	
+	public boolean existsEdge(T u, T v) {
+		if(!adj.containsKey(u))
+			throw new RuntimeException("Graph does not contain " + u);
+		return adj.get(u).contains(v);
+	}
+	
 	public List<T> neighbours(T node) {
 		if(!adj.containsKey(node))
 			throw new RuntimeException("Graph does not contain " + node);

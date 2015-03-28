@@ -47,9 +47,9 @@ public class Slot{
 		durationMin = (endTime.getTime() - startTime.getTime())/ minOffset;		
 	}
 	private static Date changeDateByMins( Date d, long byMins ){
-		Date out = new Date( d.getTime() + byMins * minOffset );
+		return new Date( d.getTime() + byMins * minOffset );
 	}
 	public void changeStarting( long byMinutes ){
-		this.startTime = changeDateByMins( this.startTime );
+		this.startTime = changeDateByMins( this.startTime , byMinutes);
 	}
 }
