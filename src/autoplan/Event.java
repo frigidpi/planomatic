@@ -1,24 +1,42 @@
 package autoplan;
 
-import java.util.Date;
+import org.joda.time.DateTime;
 
 public class Event extends Slot{
-//	public Event( String startTimeString, String endTimeString ) throws ParseException {
+	private String name;
+	//	public Event( String startTimeString, String endTimeString ) throws ParseException {
 //		super( startTimeString, endTimeString );
 //	}
 //	public Event( String startTimeString, long duration ) throws ParseException {
 //		super( startTimeString, duration );
 //	}
-	public Event( Date startTimeString, Date endTimeString) {
+	public Event( DateTime startTimeString, DateTime endTimeString, String name) {
 		super( startTimeString, endTimeString);
+		this.name = name;
 	}
-	public Event( Date startTimeString, long duration) {
+	public Event( DateTime startTimeString, int duration, String name) {
 		super( startTimeString, duration);
+		this.name = name;
 	}
-	public Event( Date startTimeString, Date endTimeString, int difficulty) {
-		super( startTimeString, endTimeString, difficulty);
+	public Event( DateTime startTimeString, DateTime endTimeString, String name, int difficulty) {
+		this( startTimeString, endTimeString, name);
+		setDifficulty(difficulty);
 	}
-	public Event( Date startTimeString, long duration, int difficulty) {
-		super( startTimeString, duration, difficulty);
+	public Event( DateTime startTimeString, int duration, String name, int difficulty) {
+		this( startTimeString, duration, name);		
+		setDifficulty(difficulty);
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+		
+	public String toString() {
+		return String.format("%s (%s - %s)", 
+				name,
+				getStartTime().toString(fmt),
+				getEndTime().toString(fmt));
 	}
 }

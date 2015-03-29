@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 public class TestScheduler {
@@ -14,12 +15,17 @@ public class TestScheduler {
 	Event e1, e2, e3, e4;
 	List<Event> events = new ArrayList<>();
 	
-	public TestScheduler() throws ParseException {
+	public TestScheduler() {
 		
-		e1 = new Event( Slot.minuteWise.parse("2012-07-10 14:58"), 10 );
-		e2 = new Event( Slot.minuteWise.parse("2012-07-10 15:58"), 10 );
-		e3 = new Event( Slot.minuteWise.parse("2012-07-10 16:58"), 10 );
-		e4 = new Event( Slot.minuteWise.parse("2012-07-10 17:58"), 10 );
+		e1 = new Event( new DateTime(2015, 3, 28, 10, 36), 10, "Frist date");
+		e2 = new Event( new DateTime(2015, 3, 28, 11, 36), 10, "Take bath");
+		e3 = new Event( new DateTime(2015, 3, 28, 12, 36), 10, "Algebra class");
+		e4 = new Event( new DateTime(2015, 3, 28, 13, 36), 10, "Listen to prawn");
+		
+//		e1 = new Event( Slot.minuteWise.parse("2012-07-10 14:58"), 10 );
+//		e2 = new Event( Slot.minuteWise.parse("2012-07-10 15:58"), 10 );
+//		e3 = new Event( Slot.minuteWise.parse("2012-07-10 16:58"), 10 );
+//		e4 = new Event( Slot.minuteWise.parse("2012-07-10 17:58"), 10 );
 		
 		events.add(e2);
 		events.add(e3);
@@ -86,11 +92,11 @@ public class TestScheduler {
 		Scheduler s = new Scheduler(events);
 		
 		Task[] tasks = new Task[5];
-		tasks[0] = new Task(45, "0", null, 0, 0, 2);
-		tasks[1] = new Task(20, "1", null, 0, 0, 2);
-		tasks[2] = new Task(20, "2", null, 0, 0, 2);
-		tasks[3] = new Task(20, "3", null, 0, 0, -5);
-		tasks[4] = new Task(20, "4", null, 0, 0, -5);
+		tasks[0] = new Task("0", 45, null, 0, 0, 2);
+		tasks[1] = new Task("1", 20, null, 0, 3, 2);
+		tasks[2] = new Task("2", 20, null, 0, 0, 2);
+		tasks[3] = new Task("3", 20, null, 0, 0, -5);
+		tasks[4] = new Task("4", 20, null, 0, 0, -5);
 		
 		for(int i = 0; i < tasks.length; i++)
 			s.addTask(tasks[i]);

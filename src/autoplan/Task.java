@@ -7,9 +7,10 @@ public class Task extends Slot{
 	private String text;
 	private int value;
 	private int urgency;
-	public final int WEIGHT_VALUE = 10;
-	public final int WEIGHT_URGENCY = 1;
-	public final int WEIGHT_TIMELINESS = -5;
+	public static final int WEIGHT_VALUE = 10;
+	public static final int WEIGHT_URGENCY = 5;
+	public static final int WEIGHT_TIMELINESS = -3;
+	public static final int DEFAULT_URGENCY = 0;
 	
 //	//constructor
 //	public Task( String startTimeString, String endTimeString, String name, String text, int importance) throws ParseException {
@@ -18,7 +19,7 @@ public class Task extends Slot{
 //		this.text = text;
 //		this.importance = importance;
 //	}
-	public Task(long duration, String name, String text, int value, int urgency, int difficulty) {
+	public Task(String name, int duration, String text, int value, int urgency, int difficulty) {
 		super( null, duration, difficulty);
 		this.name = name;
 		this.text = text;
@@ -26,12 +27,12 @@ public class Task extends Slot{
 		this.urgency = urgency;
 	}
 	
-	public Task(long duration, String name, String text, int value, int urgency) {
-		this(duration, name, text, value, urgency, DEFAULT_DIFFICULTY);
+	public Task(String name, int duration, String text, int value) {
+		this(name, duration, text, value, DEFAULT_URGENCY, DEFAULT_DIFFICULTY);
 	}
 	
 	public Task(Task t, int duration) {
-		this(duration, t.name, t.text, t.value, t.urgency);
+		this(t.name, duration, t.text, t.value, t.urgency, t.getDifficulty());
 	}
 	
 	//access
@@ -55,6 +56,10 @@ public class Task extends Slot{
 		value = newImportance;
 	}
 	
+	/**
+	 * Given daysUntilDue, urgency = 10 - (daysUntilDue - now)
+	 * @return
+	 */
 	public int getUrgency() {
 		return urgency;
 	}
@@ -70,8 +75,8 @@ public class Task extends Slot{
 
 	public String toString() {
 		return String.format("%s (%s for %d, d=%d)\n", 
-				name,
-				minuteWise.format(getStartTime()),
+				getName(),
+				getStartTime() == null ? "unscheduled" : getStartTime().toString(fmt),
 				getDuration(), getDifficulty());
 	}
 	

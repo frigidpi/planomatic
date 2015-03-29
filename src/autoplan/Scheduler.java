@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
+import org.joda.time.DateTime;
 
 public class Scheduler {
 
@@ -44,7 +47,8 @@ public class Scheduler {
 		
 		System.out.println("---LEAVES----");
 		for(Task tp : leaves) {
-			System.out.format("Task %s: %d\n", tp.getName(), tp.priority(stress));
+			System.out.format("Task %s: %d (val=%d, urg=%d, diff=%d)\n", tp.getName(), tp.priority(stress), tp.getValue(), tp.getUrgency(),
+					tp.getDifficulty());
 		}
 		System.out.println("------------");
 		
@@ -91,9 +95,11 @@ public class Scheduler {
 	}
 	
 	public void prettyPrintGap() {
+		System.out.println(events.get(0));
 		for(int i = 0; i < gaps.size(); i++) {
-			System.out.format("GAP %d\n", i);
-			System.out.println(gaps.get(i));
+			System.out.format("GAP %d (%s)\n", i, gaps.get(i).getStartTime().toString(Slot.fmt));
+			System.out.println(gaps.get(i));	
+			System.out.println(events.get(i + 1));
 		}
 	}
 	
@@ -106,18 +112,31 @@ public class Scheduler {
 		}
 	}
 	
+	public void updateUrgencies() {
+		for(Task t : g.getNodes())
+			if(t.getUrgency() > 0)
+				t.setUrgency(t.getUrgency() + 1);
+	}
+	
 	public void schedule() {
 		findGaps();
 		List<Task> leaves = findLeaves();
 		Iterator<Event> eventIterator = events.iterator();
 		
 		Slot prev = eventIterator.next();
+		DateTime today = prev.getEndTime();
 		stress = 0;
 		
 		int i = 0;
 		
 		while(i < gaps.size()) {
-			stress += prev.getDifficulty() * (int)prev.getDuration();
+			stress += Slot.computeStress(prev.getDifficulty(), prev.getDuration());
+			
+			if(prev.getEndTime().getDayOfYear() != today.getDayOfYear()) {
+				today = prev.getEndTime();
+				updateUrgencies();
+			}
+			
 			System.out.format("Stress meter: %d\n", stress);
 			
 			Gap cur = gaps.get(i);
@@ -127,7 +146,7 @@ public class Scheduler {
 			Task task = fitTask(leaves, cur);
 			
 			if(task == null) {
-				stress += cur.getDifficulty() * (int)cur.getDuration();
+				stress += Slot.computeStress(cur.getDifficulty(), cur.getDurationLeft());
 				System.out.format("Stress meter after gap: %d\n", stress);
 				prev = eventIterator.next();
 				i++;
@@ -150,6 +169,10 @@ public class Scheduler {
 		} else {
 			g.addNode(t);
 		}
+	}
+	
+	public Set<Task> getTasks() {
+		return g.getNodes();
 	}
 	
 	public void addDependency(Task t1, Task t2) {
