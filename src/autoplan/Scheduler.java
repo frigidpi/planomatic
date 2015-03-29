@@ -3,7 +3,6 @@ package autoplan;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 public class Scheduler {
@@ -15,30 +14,19 @@ public class Scheduler {
 	public final int DEFAULT_SPLIT_THRESHOLD = 40;
 	private int splitThreshold; 
 	
-	public Scheduler() {
-		events = new ArrayList<Event>();
+	public Scheduler(List<Event> events) {
+		this.events = events;
 		gaps = new ArrayList<Gap>();
 		g = new TGraph<Task>();
 		splitThreshold = DEFAULT_SPLIT_THRESHOLD;
 	}
-
-	public void findGaps() {
-		sortEvents();
-		for(int i = 0; i < events.size() - 1; i++) {
-			gaps.add(new Gap(events.get(i).getEndTime(), events.get(i + 1).getStartTime()));
-		}
+	
+	private void sortEvents() {
+		Collections.sort(events, (Event ev1, Event ev2) -> (ev1.getStartTime()).compareTo(ev2.getStartTime()));
 	}
 	
 	public List<Gap> getGaps() {
 		return gaps;
-	}
-
-	public void addEvent( Event ev ){
-		events.add( ev );
-	}
-	
-	public void sortEvents() {
-		Collections.sort( events, (Event ev1, Event ev2) -> (ev1.getStartTime()).compareTo(ev2.getStartTime()) );
 	}
 	
 	/**
@@ -63,15 +51,18 @@ public class Scheduler {
 		while(taskIterator.hasNext()) {
 			t = taskIterator.next();
 			
-			if(t.getDuration() <= gap.getDuration()) {
-				t.setStartTime(gap.getStartTime());
-				gap.changeStarting(t.getDuration());
+			if(gap.taskFits(t)) {
+				gap.addTask(t);
+//				t.setStartTime(gap.getStartTime());
+//				gap.changeStarting(t.getDuration());
 				
 				found = t;
 				taskIterator.remove();
 				break;
 			}
 		}
+		
+		// remove task from graph
 		if(found != null) {
 			// make all neighbours that only depend on this leaves
 			for(Task dependent : g.inNeighbours(found)) {
@@ -99,15 +90,29 @@ public class Scheduler {
 				(Task t1, Task t2) -> t2.priority(stress) - t1.priority(stress));
 	}
 	
-	public List<Task> schedule() {
-		
+	public void prettyPrintGap() {
+		for(int i = 0; i < gaps.size(); i++) {
+			System.out.format("GAP %d\n", i);
+			System.out.println(gaps.get(i));
+		}
+	}
+	
+	private void findGaps() {
+		gaps.clear();
+		sortEvents();
+		// find the gaps
+		for(int i = 0; i < events.size() - 1; i++) {
+			gaps.add(new Gap(events.get(i).getEndTime(), events.get(i + 1).getStartTime()));
+		}
+	}
+	
+	public void schedule() {
+		findGaps();
 		List<Task> leaves = findLeaves();
 		Iterator<Event> eventIterator = events.iterator();
 		
 		Slot prev = eventIterator.next();
 		stress = 0;
-		
-		List<Task> assignedTasks = new LinkedList<>();
 		
 		int i = 0;
 		
@@ -128,16 +133,23 @@ public class Scheduler {
 				i++;
 			} else {
 				System.out.format("Selected task %s\n", task.getName());
-				assignedTasks.add(task);
 				prev = task;
 			}
 		}
-		
-		return assignedTasks;
 	}
 	
 	public void addTask(Task t) {
-		g.addNode(t);
+		// divide tasks
+		if(t.getDuration() >= splitThreshold) {
+			int numChunks = (int)Math.floor((double)t.getDuration()/(splitThreshold/2));
+			int rem = (int)t.getDuration() % numChunks;
+			for(int i = 0; i < numChunks; i++) {
+				int add = (i < rem) ? 1 : 0;
+				g.addNode(new Task(t, (int)t.getDuration()/numChunks + add));
+			}
+		} else {
+			g.addNode(t);
+		}
 	}
 	
 	public void addDependency(Task t1, Task t2) {

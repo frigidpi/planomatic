@@ -3,33 +3,42 @@ package autoplan;
 import static org.junit.Assert.*;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Test;
 
 public class TestScheduler {
-
+	
+	Event e1, e2, e3, e4;
+	List<Event> events = new ArrayList<>();
+	
+	public TestScheduler() throws ParseException {
+		
+		e1 = new Event( Slot.minuteWise.parse("2012-07-10 14:58"), 10 );
+		e2 = new Event( Slot.minuteWise.parse("2012-07-10 15:58"), 10 );
+		e3 = new Event( Slot.minuteWise.parse("2012-07-10 16:58"), 10 );
+		e4 = new Event( Slot.minuteWise.parse("2012-07-10 17:58"), 10 );
+		
+		events.add(e2);
+		events.add(e3);
+		events.add(e1);
+		events.add(e4);
+	}
 	
 	@Test
 	public void testSortEvents() throws ParseException {
 		
-		Scheduler s = new Scheduler();
-		
-		Event e1 = new Event( Slot.minuteWise.parse("2012-07-10 14:58"), 10 );
-		Event e2 = new Event( Slot.minuteWise.parse("2012-07-10 15:58"), 10 );
-		Event e3 = new Event( Slot.minuteWise.parse("2012-07-10 16:58"), 10 );
-		
-		s.addEvent(e2);
-		s.addEvent(e3);
-		s.addEvent(e1);
+		Scheduler s = new Scheduler(events);
 		
 		List<Event> expected = new LinkedList<Event>();
 		expected.add(e1);
 		expected.add(e2);
 		expected.add(e3);
+		expected.add(e4);
 		
-		s.sortEvents();
+		s.schedule();
 		
 		assertTrue(s.getEvents().equals(expected));
 	}
@@ -37,77 +46,51 @@ public class TestScheduler {
 	@Test
 	public void testGaps() throws ParseException {
 		
-		Scheduler s = new Scheduler();
+		Scheduler s = new Scheduler(events);
 		
-		Event e1 = new Event( Slot.minuteWise.parse("2012-07-10 14:58"), 10 );
-		Event e2 = new Event( Slot.minuteWise.parse("2012-07-10 15:58"), 10 );
-		Event e3 = new Event( Slot.minuteWise.parse("2012-07-10 16:58"), 10 );
-		
-		s.addEvent(e2);
-		s.addEvent(e3);
-		s.addEvent(e1);
-		
-		s.findGaps();
-		
-		System.out.println(s.getGaps());
-		
-		assertTrue(true);
+		s.schedule();
+
+		assertEquals(s.getGaps().size(), events.size() - 1);
 	}
 	
-	@Test
-	public void testTasks() throws ParseException {
-		
-		List<Task> res;
-		Scheduler s = new Scheduler();
-		
-		Task[] tasks = new Task[4];
-		tasks[0] = new Task(15, "0", null, 0, 100);
-		tasks[1] = new Task(5, "1", null, 5, 0);
-		tasks[2] = new Task(45, "2", null, 10, 0);
-		tasks[3] = new Task(30, "3", null, 3, 0);
-		//tasks[4] = new Task(30, "3", null, 3, 0);
-		
-		for(int i = 0; i < tasks.length; i++)
-			s.addTask(tasks[i]);
-		
-//		s.addDependency(tasks[2], tasks[1]);
+//	@Test
+//	public void testTasks() throws ParseException {
+//		
+//		Scheduler s = new Scheduler(events);
+//		
+//		Task[] tasks = new Task[4];
+//		tasks[0] = new Task(15, "0", null, 0, 100);
+//		tasks[1] = new Task(5, "1", null, 5, 0);
+//		tasks[2] = new Task(45, "2", null, 10, 0);
+//		tasks[3] = new Task(30, "3", null, 3, 0);
+//		//tasks[4] = new Task(30, "3", null, 3, 0);
+//		
+//		for(int i = 0; i < tasks.length; i++)
+//			s.addTask(tasks[i]);
+//		
+////		s.addDependency(tasks[2], tasks[1]);
+////		s.addDependency(tasks[1], tasks[3]);
+////		s.addDependency(tasks[3], tasks[0]);
+//		
 //		s.addDependency(tasks[1], tasks[3]);
-//		s.addDependency(tasks[3], tasks[0]);
-		
-		s.addDependency(tasks[1], tasks[3]);
-		s.addDependency(tasks[0], tasks[2]);
-		
-		Event e1 = new Event( Slot.minuteWise.parse("2012-07-10 14:58"), 10 );
-		Event e2 = new Event( Slot.minuteWise.parse("2012-07-10 15:58"), 10 );
-		Event e3 = new Event( Slot.minuteWise.parse("2012-07-10 16:58"), 10 );
-		Event e4 = new Event( Slot.minuteWise.parse("2012-07-10 17:58"), 10 );
-		
-		s.addEvent(e2);
-		s.addEvent(e3);
-		s.addEvent(e1);
-		s.addEvent(e4);
-		
-		s.findGaps();
-		
-		res = s.schedule();
-		
-		System.out.println(res);
-		
-		assertTrue(true);
-	}
+//		s.addDependency(tasks[0], tasks[2]);
+//		
+//		System.out.println(s.getGaps());
+//		
+//		assertTrue(true);
+//	}
 	
 	@Test
 	public void testTasks2() throws ParseException {
 		
-		List<Task> res;
-		Scheduler s = new Scheduler();
+		Scheduler s = new Scheduler(events);
 		
 		Task[] tasks = new Task[5];
-		tasks[0] = new Task(10, "0", null, 0, 0, 2);
-		tasks[1] = new Task(10, "1", null, 0, 0, 2);
-		tasks[2] = new Task(10, "2", null, 0, 0, 2);
-		tasks[3] = new Task(10, "3", null, 0, 0, -5);
-		tasks[4] = new Task(10, "4", null, 0, 0, -5);
+		tasks[0] = new Task(45, "0", null, 0, 0, 2);
+		tasks[1] = new Task(20, "1", null, 0, 0, 2);
+		tasks[2] = new Task(20, "2", null, 0, 0, 2);
+		tasks[3] = new Task(20, "3", null, 0, 0, -5);
+		tasks[4] = new Task(20, "4", null, 0, 0, -5);
 		
 		for(int i = 0; i < tasks.length; i++)
 			s.addTask(tasks[i]);
@@ -119,21 +102,8 @@ public class TestScheduler {
 //		s.addDependency(tasks[1], tasks[3]);
 //		s.addDependency(tasks[0], tasks[2]);
 		
-		Event e1 = new Event( Slot.minuteWise.parse("2012-07-10 14:58"), 10 );
-		Event e2 = new Event( Slot.minuteWise.parse("2012-07-10 15:58"), 10 );
-		Event e3 = new Event( Slot.minuteWise.parse("2012-07-10 16:58"), 10 );
-		Event e4 = new Event( Slot.minuteWise.parse("2012-07-10 17:58"), 10 );
-		
-		s.addEvent(e2);
-		s.addEvent(e3);
-		s.addEvent(e1);
-		s.addEvent(e4);
-		
-		s.findGaps();
-		
-		res = s.schedule();
-		
-		System.out.println(res);
+		s.schedule();
+		s.prettyPrintGap();
 		
 		assertTrue(true);
 	}

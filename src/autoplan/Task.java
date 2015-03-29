@@ -24,11 +24,15 @@ public class Task extends Slot{
 		this.text = text;
 		this.value = value;
 		this.urgency = urgency;
-	}	
+	}
 	
 	public Task(long duration, String name, String text, int value, int urgency) {
 		this(duration, name, text, value, urgency, DEFAULT_DIFFICULTY);
-	}	
+	}
+	
+	public Task(Task t, int duration) {
+		this(duration, t.name, t.text, t.value, t.urgency);
+	}
 	
 	//access
 	public String getName(){

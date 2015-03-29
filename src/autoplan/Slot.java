@@ -4,8 +4,6 @@ import java.util.*;
 import java.text.*;
 
 public class Slot{
-//	private static String startTest = "2012-07-10 14:58";
-//	private static String endTest = "2012-07-10 16:58";
 	
 	private static final long minOffset = 60 * 1000;
 	public static final int DEFAULT_DIFFICULTY = 5;
