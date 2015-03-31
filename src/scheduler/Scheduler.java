@@ -1,4 +1,4 @@
-package autoplan;
+package scheduler;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,20 +8,23 @@ import java.util.Set;
 
 import org.joda.time.DateTime;
 
+/**
+ * The main scheduler class that contains the scheduling algorithm
+ * @author duncan
+ *
+ */
+
 public class Scheduler {
 
 	private int stress;
-	private TGraph<Task> g;
+	private TGraph<TaskGroup> g;
 	private List<Event> events;
-	private ArrayList<Gap> gaps;
-	public final int DEFAULT_SPLIT_THRESHOLD = 40;
-	private int splitThreshold; 
+	private ArrayList<Gap> gaps; 
 	
 	public Scheduler(List<Event> events) {
 		this.events = events;
 		gaps = new ArrayList<Gap>();
-		g = new TGraph<Task>();
-		splitThreshold = DEFAULT_SPLIT_THRESHOLD;
+		g = new TGraph<TaskGroup>();
 	}
 	
 	private void sortEvents() {
@@ -40,58 +43,60 @@ public class Scheduler {
 	 * @param gap
 	 * @return
 	 */
-	public Task fitTask(List<Task> leaves, Gap gap) {
+	public Task fitTask(List<TaskGroup> leaves, Gap gap) {
 		sortLeaves(leaves);
-		Iterator<Task> taskIterator = leaves.iterator();
-		Task t, found = null;
+		Task task = null;
+		TaskGroup chosenGroup = null;
 		
 		System.out.println("---LEAVES----");
-		for(Task tp : leaves) {
-			System.out.format("Task %s: %d (val=%d, urg=%d, diff=%d)\n", tp.getName(), tp.priority(stress), tp.getValue(), tp.getUrgency(),
-					tp.getDifficulty());
+		for(TaskGroup t : leaves) {
+			System.out.format("Task %s: %d (val=%d, urg=%d, diff=%d)\n", t.getName(), t.priority(stress), t.getValue(), t.getUrgency(),
+					t.getDifficulty());
 		}
 		System.out.println("------------");
 		
-		while(taskIterator.hasNext()) {
-			t = taskIterator.next();
-			
-			if(gap.taskFits(t)) {
-				gap.addTask(t);
+		// For each group, find the first group that fits
+		for(TaskGroup taskGroup : leaves) {	
+			if(!taskGroup.hasChunks()) {
+				System.out.println("Something's wrong!");
+			}
+			if(gap.taskFits(taskGroup.peekChunk())) {
+				task = taskGroup.nextChunk();
+				gap.addTask(task);
 //				t.setStartTime(gap.getStartTime());
-//				gap.changeStarting(t.getDuration());
-				
-				found = t;
-				taskIterator.remove();
+//				gap.changeStarting(t.getDuration());	
+				chosenGroup = taskGroup;	
 				break;
 			}
 		}
 		
-		// remove task from graph
-		if(found != null) {
+		// remove task from graph if it has no more subtasks
+		if(chosenGroup != null && !chosenGroup.hasChunks()) {
+			leaves.remove(chosenGroup);
 			// make all neighbours that only depend on this leaves
-			for(Task dependent : g.inNeighbours(found)) {
+			for(TaskGroup dependent : g.inNeighbours(chosenGroup)) {
 				if(g.outdegree(dependent) == 1)
 					leaves.add(dependent);
 			}
-			g.removeNode(found);
+			g.removeNode(chosenGroup);
 		}
 		
-		return found;
+		return task;
 	}
 	
-	public List<Task> findLeaves() {
+	private List<TaskGroup> findLeaves() {
 		// finds all the leaves
-		List<Task> leaves = new ArrayList<>();
-		for(Task t : g.getNodes()) {
+		List<TaskGroup> leaves = new ArrayList<>();
+		for(TaskGroup t : g.getNodes()) {
 			if(g.outdegree(t) == 0)
 				leaves.add(t);
 		}
 		return leaves;
 	}
 	
-	public void sortLeaves(List<Task> leaves) {
+	public void sortLeaves(List<TaskGroup> leaves) {
 		Collections.sort(leaves,
-				(Task t1, Task t2) -> t2.priority(stress) - t1.priority(stress));
+				(TaskGroup t1, TaskGroup t2) -> t2.priority(stress) - t1.priority(stress));
 	}
 	
 	public void prettyPrintGap() {
@@ -113,14 +118,14 @@ public class Scheduler {
 	}
 	
 	public void updateUrgencies() {
-		for(Task t : g.getNodes())
+		for(TaskGroup t : g.getNodes())
 			if(t.getUrgency() > 0)
 				t.setUrgency(t.getUrgency() + 1);
 	}
 	
 	public void schedule() {
 		findGaps();
-		List<Task> leaves = findLeaves();
+		List<TaskGroup> leaves = findLeaves();
 		Iterator<Event> eventIterator = events.iterator();
 		
 		Slot prev = eventIterator.next();
@@ -157,25 +162,19 @@ public class Scheduler {
 		}
 	}
 	
-	public void addTask(Task t) {
-		// divide tasks
-		if(t.getDuration() >= splitThreshold) {
-			int numChunks = (int)Math.floor((double)t.getDuration()/(splitThreshold/2));
-			int rem = (int)t.getDuration() % numChunks;
-			for(int i = 0; i < numChunks; i++) {
-				int add = (i < rem) ? 1 : 0;
-				g.addNode(new Task(t, (int)t.getDuration()/numChunks + add));
-			}
-		} else {
-			g.addNode(t);
-		}
+	public void addTask(TaskGroup t) {
+		g.addNode(t);
 	}
 	
-	public Set<Task> getTasks() {
+	public List<Task> chunk(TaskGroup tg) {
+		return null;
+	}
+		
+	public Set<TaskGroup> getTasks() {
 		return g.getNodes();
 	}
 	
-	public void addDependency(Task t1, Task t2) {
+	public void addDependency(TaskGroup t1, TaskGroup t2) {
 		g.addEdge(t1, t2);
 	}
 

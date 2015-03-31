@@ -10,6 +10,10 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import scheduler.Event;
+import scheduler.Scheduler;
+import scheduler.Task;
+
 public class TestScheduler {
 	
 	Event e1, e2, e3, e4;
@@ -91,15 +95,15 @@ public class TestScheduler {
 		
 		Scheduler s = new Scheduler(events);
 		
-		Task[] tasks = new Task[5];
-		tasks[0] = new Task("0", 45, null, 0, 0, 2);
-		tasks[1] = new Task("1", 20, null, 0, 3, 2);
-		tasks[2] = new Task("2", 20, null, 0, 0, 2);
-		tasks[3] = new Task("3", 20, null, 0, 0, -5);
-		tasks[4] = new Task("4", 20, null, 0, 0, -5);
-		
-		for(int i = 0; i < tasks.length; i++)
-			s.addTask(tasks[i]);
+//		Task[] tasks = new Task[5];
+//		tasks[0] = new Task("0", 45, null, 0, 0, 2);
+//		tasks[1] = new Task("1", 20, null, 0, 3, 2);
+//		tasks[2] = new Task("2", 20, null, 0, 0, 2);
+//		tasks[3] = new Task("3", 20, null, 0, 0, -5);
+//		tasks[4] = new Task("4", 20, null, 0, 0, -5);
+//		
+//		for(int i = 0; i < tasks.length; i++)
+//			s.addTask(tasks[i]);
 		
 //		s.addDependency(tasks[2], tasks[1]);
 //		s.addDependency(tasks[1], tasks[3]);
