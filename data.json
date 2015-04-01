@@ -124,6 +124,9 @@
       "urgency": 0,
       "difficulty": -5
     }
-  ]
+  ],
+  "dependencies" : {
+  	"6" : [0]
+  }
 }
 

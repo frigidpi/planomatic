@@ -8,6 +8,9 @@ import java.util.Set;
 
 import org.joda.time.DateTime;
 
+import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
+
 /**
  * The main scheduler class that contains the scheduling algorithm
  * @author duncan
@@ -21,10 +24,17 @@ public class Scheduler {
 	private List<Event> events;
 	private ArrayList<Gap> gaps; 
 	
-	public Scheduler(List<Event> events) {
+	public Scheduler(List<Event> events, List<TaskGroup> tasks) {
 		this.events = events;
 		gaps = new ArrayList<Gap>();
 		g = new TGraph<TaskGroup>();
+		if(tasks != null)
+			for(TaskGroup t : tasks)
+				g.addNode(t);
+	}
+	
+	public Scheduler(List<Event> events) {
+		this(events, null);
 	}
 	
 	private void sortEvents() {
@@ -184,6 +194,22 @@ public class Scheduler {
 
 	public void setEvents(List<Event> events) {
 		this.events = events;
+	}
+	
+	/**
+	 * Returns a JsonObject with the list of scheduled tasks
+	 * @return JsonObject list of scheduled tasks
+	 */
+	public JsonObject toJson() {
+		JsonArray taskJson = new JsonArray();
+		TaskJsonConverter converter = new TaskJsonConverter();
+		for(Gap g : gaps)
+			for(Task t : g.getTasks())
+				taskJson.add(converter.toJson(t));
+		
+		JsonObject obj = new JsonObject();
+		obj.set("tasks_scheduled", taskJson);
+		return obj;
 	}
 	
 }

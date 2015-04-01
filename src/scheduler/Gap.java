@@ -43,6 +43,10 @@ public class Gap extends Slot {
 		durationLeft -= t.getDuration();
 	}
 	
+	public List<Task> getTasks() {
+		return tasks;
+	}
+
 	public DateTime taskStartTime() {
 		return tasks.get(tasks.size() - 1).getEndTime();
 	}	

@@ -9,6 +9,7 @@ public class TaskGroup {
 	public static final int WEIGHT_TIMELINESS = -3;
 	public static final int DEFAULT_URGENCY = 0;
 	
+	private int id;
 	private String name;
 	private String text;
 	private int value;
@@ -17,14 +18,23 @@ public class TaskGroup {
 	private int difficulty;
 	LinkedList<Task> chunks;
 	
-	public TaskGroup(String name, int duration, String text, int value, int urgency, int difficulty, int threshold) {
+	public TaskGroup(int id, String name, int duration, String text, int value, int urgency, int difficulty, int threshold) {
 		this.name = name;
 		this.text = text;
 		this.value = value;
 		this.urgency = urgency;
 		this.duration = duration;
 		this.difficulty = difficulty;
+		this.id = id;
 		createChunks(threshold);
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getName() {
@@ -84,6 +94,11 @@ public class TaskGroup {
 				+ Slot.timeliness(stress, getDifficulty(), getDuration()) * WEIGHT_TIMELINESS;
 	}
 	
+	/**
+	 * Separates the task into chunks if the duration of the task is longer than the given threshold.
+	 * The number of chunks is given by floor(duration / (threshold / 2))
+	 * @param threshold
+	 */
 	private void createChunks(int threshold) {
 		chunks = new LinkedList<Task>();
 		if(getDuration() >= threshold) {

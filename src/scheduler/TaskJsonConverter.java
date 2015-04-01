@@ -13,13 +13,11 @@ public class TaskJsonConverter implements JsonConverter<Task> {
 	@Override
 	public JsonObject toJson(Task task) {
 		JsonObject obj = new JsonObject();
+		obj.set("id", task.getParent().getId());
 		obj.set("name", task.getName());
 		obj.set("duration", task.getDuration());
-		obj.set("value", task.getValue());
-		obj.set("urgency", task.getUrgency());
-		obj.set("difficulty", task.getDifficulty());
 		obj.set("startTime", task.getStartTime().getMillis());
-		return null;
+		return obj;
 	}
 
 	

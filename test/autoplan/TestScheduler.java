@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import scheduler.Event;
 import scheduler.Scheduler;
-import scheduler.Task;
 
 public class TestScheduler {
 	
